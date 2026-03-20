@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<style>
+    /* 스타일: HP&C 및 페라스타 브랜드 이미지에 맞춘 디자인 */
+    .calculator-box {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        background-color: #f9f9f9;
+        max-width: 500px;
+        font-family: 'Noto Sans KR', sans-serif;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .calculator-box h3 {
+        color: #278B7B; /* 메인 색상 적용 */
+        border-bottom: 2px solid #278B7B; /* 메인 색상 적용 */
+        padding-bottom: 10px;
+        margin-top: 0;
+    }
+    .input-group {
+        margin-bottom: 15px;
+    }
+    .input-group label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+        color: #333;
+    }
+    .input-group input,
+    .input-group select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+    .calc-btn {
+        width: 100%;
+        padding: 10px;
+        background-color: #278B7B; /* 메인 색상 적용 */
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    .calc-btn:hover {
+        background-color: #1f6f63; /* 메인 색상보다 약간 어두운 호버 효과 */
+    }
+    .result-box {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #e6f2f0; /* 청록색 톤에 맞춘 밝은 배경색 적용 */
+        border-radius: 4px;
+        display: none;
+    }
+    .result-item {
+        margin-bottom: 10px;
+        font-size: 15px;
+    }
+    .result-item strong {
+        color: #278B7B; /* 결과값 강조 색상을 메인 톤으로 통일 */
+        font-size: 1.1em;
+    }
+</style>
+</head>
+<body>
+
+<div class="calculator-box">
+    <h3>🧪 <span id="selectedProductName">페라스타</span>(PAA) 희석 계산기</h3>
+
+    <div class="input-group">
+        <label for="waterVol">1. 준비된 물의 양 (L)</label>
+        <input type="number" id="waterVol" placeholder="예: 1000 (탱크 용량)" step="0.1">
+    </div>
+
+    <div class="input-group">
+        <label for="targetPPM">2. 목표 농도 (ppm)</label>
+        <input type="number" id="targetPPM" placeholder="예: 2000">
+    </div>
+
+    <div class="input-group">
+        <label for="testProduct">3. 테스트 약품 선택</label>
+        <select id="testProduct" onchange="syncSourcePercent()">
+            <option value="5.6" selected>페라스타 (5.6%)</option>
+            <option value="10">페라스타10 (10%)</option>
+            <option value="6">페라스타아이안심 (6%)</option>
+            <option value="5.6">페라스타AG (5.6%)</option>
+            <option value="5.6">페라스타그린 (5.6%)</option>
+        </select>
+        <small style="color:#666;">* 약품 선택 시 원액 농도가 자동 반영됩니다.</small>
+    </div>
+
+    <div class="input-group">
+        <label for="sourcePercent">4. 페라스타 원액 농도 (%)</label>
+        <input type="number" id="sourcePercent" value="5.6" step="0.1">
+        <small style="color:#666;">*수동 변경 가능</small>
+    </div>
+
+    <button class="calc-btn" onclick="calculateDilution()">계산하기</button>
+
+    <div id="resultArea" class="result-box">
+        <h4>📋 투입 레시피</h4>
+        <div class="result-item">
+            준비된 물 <strong><span id="displayWater">0</span> L</strong>에<br>
+            🧪 <strong>페라스타: <span id="resAgent">0</span> mL</strong>를 투입하세요.
+        </div>
+        <hr style="border: 0; border-top: 1px solid #ccc;">
+        <div class="result-item" style="color: #555;">
+            📊 <strong>제조 후 총 용량: 약 <span id="resTotal">0</span> L</strong>
+        </div>
+        <p style="font-size: 13px; color: #777;">
+            * 안전을 위해 보호구(장갑, 마스크)를 착용하십시오.
+        </p>
+    </div>
+</div>
+
+<script>
+    function syncSourcePercent() {
+        var productSelect = document.getElementById('testProduct');
+        var selectedConcentration = parseFloat(productSelect.value);
+        var selectedProductName = productSelect.options[productSelect.selectedIndex].text.split(' (')[0];
+
+        document.getElementById('sourcePercent').value = selectedConcentration;
+        document.getElementById('selectedProductName').innerText = selectedProductName;
+    }
+
+    function calculateDilution() {
+        // 1. 입력값 가져오기
+        var waterVolLiter = parseFloat(document.getElementById('waterVol').value);
+        var targetPPM = parseFloat(document.getElementById('targetPPM').value);
+        var sourcePercent = parseFloat(document.getElementById('sourcePercent').value);
+
+        // 2. 입력값 검증
+        if (isNaN(waterVolLiter) || isNaN(targetPPM) || isNaN(sourcePercent)) {
+            alert("모든 수치를 올바르게 입력해주세요.");
+            return;
+        }
+
+        // 3. 계산 로직 (물 기준 역산)
+        var waterVolML = waterVolLiter * 1000;
+        var sourcePPM = sourcePercent * 10000;
+
+        if (targetPPM >= sourcePPM) {
+            alert("목표 농도가 원액 농도보다 높을 수 없습니다.");
+            return;
+        }
+
+        /* 공식 유도:
+           Total Vol = Water Vol + Agent Vol
+           Target PPM * (Water + Agent) = Source PPM * Agent
+           Target * Water + Target * Agent = Source * Agent
+           Target * Water = Agent * (Source - Target)
+           Agent = (Target * Water) / (Source - Target)
+        */
+
+        var requiredAgentML = (targetPPM * waterVolML) / (sourcePPM - targetPPM);
+        var totalVolML = waterVolML + requiredAgentML;
+        var totalVolLiter = totalVolML / 1000;
+
+        // 4. 결과 출력
+        document.getElementById('displayWater').innerText = waterVolLiter.toLocaleString();
+        document.getElementById('resAgent').innerText = requiredAgentML.toLocaleString(undefined, { maximumFractionDigits: 1 });
+        document.getElementById('resTotal').innerText = totalVolLiter.toLocaleString(undefined, { maximumFractionDigits: 2 });
+        document.getElementById('resultArea').style.display = 'block';
+    }
+
+    syncSourcePercent();
+</script>
+
+</body>
+</html>
