@@ -1,174 +1,254 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<style>
-    /* 스타일: HP&C 및 페라스타 브랜드 이미지에 맞춘 디자인 */
-    .calculator-box {
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        padding: 20px;
-        background-color: #f9f9f9;
-        max-width: 500px;
-        font-family: 'Noto Sans KR', sans-serif;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .calculator-box h3 {
-        color: #278B7B; /* 메인 색상 적용 */
-        border-bottom: 2px solid #278B7B; /* 메인 색상 적용 */
-        padding-bottom: 10px;
-        margin-top: 0;
-    }
-    .input-group {
-        margin-bottom: 15px;
-    }
-    .input-group label {
-        display: block;
-        font-weight: bold;
-        margin-bottom: 5px;
-        color: #333;
-    }
-    .input-group input,
-    .input-group select {
-        width: 100%;
-        padding: 8px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        box-sizing: border-box;
-    }
-    .calc-btn {
-        width: 100%;
-        padding: 10px;
-        background-color: #278B7B; /* 메인 색상 적용 */
-        color: white;
-        border: none;
-        border-radius: 4px;
-        font-size: 16px;
-        cursor: pointer;
-        font-weight: bold;
-    }
-    .calc-btn:hover {
-        background-color: #1f6f63; /* 메인 색상보다 약간 어두운 호버 효과 */
-    }
-    .result-box {
-        margin-top: 20px;
-        padding: 15px;
-        background-color: #e6f2f0; /* 청록색 톤에 맞춘 밝은 배경색 적용 */
-        border-radius: 4px;
-        display: none;
-    }
-    .result-item {
-        margin-bottom: 10px;
-        font-size: 15px;
-    }
-    .result-item strong {
-        color: #278B7B; /* 결과값 강조 색상을 메인 톤으로 통일 */
-        font-size: 1.1em;
-    }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>페라스타 희석 계산기</title>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+        :root {
+            --primary: #268B7C;
+            --primary-dark: #1a6b5e;
+            --text-main: #2d3436;
+            --text-sub: #636e72;
+            --border: #e9ecef;
+            --bg: #f5f7f6;
+            --white: #ffffff;
+        }
+
+        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', -apple-system, sans-serif;
+            color: var(--text-main);
+            font-size: 14px;
+            background: var(--white);
+        }
+
+        .calc-note {
+            font-size: 13px;
+            color: #999;
+            margin: 0 0 20px;
+        }
+
+        .calc-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .calc-input-panel {
+            padding: 28px 30px;
+            border-right: 1px solid var(--border);
+            background: var(--white);
+        }
+
+        .calc-output-panel {
+            padding: 28px 30px;
+            background: var(--bg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .calc-field {
+            margin-bottom: 16px;
+        }
+
+        .calc-field label {
+            display: block;
+            font-size: 12.5px;
+            font-weight: 700;
+            color: var(--text-sub);
+            margin-bottom: 6px;
+        }
+
+        .calc-field input,
+        .calc-field select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            color: var(--text-main);
+            background: var(--white);
+            outline: none;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+
+        .calc-field input:focus,
+        .calc-field select:focus {
+            border-color: var(--primary);
+        }
+
+        .calc-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            margin-top: 4px;
+            transition: background 0.2s;
+        }
+
+        .calc-btn:hover { background: var(--primary-dark); }
+
+        .calc-result-label {
+            font-size: 12.5px;
+            color: var(--text-sub);
+            margin-bottom: 6px;
+        }
+
+        .calc-result-value {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1.1;
+            margin-bottom: 4px;
+        }
+
+        .calc-result-unit {
+            font-size: 14px;
+            font-weight: 400;
+            color: var(--text-sub);
+            margin-left: 4px;
+        }
+
+        .calc-result-sub {
+            font-size: 12.5px;
+            color: var(--text-sub);
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+            line-height: 1.7;
+        }
+
+        .calc-result-sub strong {
+            color: var(--text-main);
+        }
+
+        .calc-placeholder {
+            text-align: center;
+            color: #ccc;
+            font-size: 13px;
+            padding: 20px 0;
+        }
+
+        .calc-warning {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        @media (max-width: 768px) {
+            .calc-layout { grid-template-columns: 1fr; }
+            .calc-input-panel { border-right: none; border-bottom: 1px solid var(--border); }
+        }
+    </style>
 </head>
 <body>
 
-<div class="calculator-box">
-    <h3>🧪 <span id="selectedProductName">페라스타</span>(PAA) 희석 계산기</h3>
+<p class="calc-note">※ 물의 양과 목표 농도를 입력하면 페라스타 투입량을 계산합니다.</p>
 
-    <div class="input-group">
-        <label for="waterVol">1. 준비된 물의 양 (L)</label>
-        <input type="number" id="waterVol" placeholder="예: 1000 (탱크 용량)" step="0.1">
-    </div>
+<div class="calc-layout">
+    <!-- 입력 패널 -->
+    <div class="calc-input-panel">
 
-    <div class="input-group">
-        <label for="targetPPM">2. 목표 농도 (ppm)</label>
-        <input type="number" id="targetPPM" placeholder="예: 2000">
-    </div>
-
-    <div class="input-group">
-        <label for="testProduct">3. 테스트 약품 선택</label>
-        <select id="testProduct" onchange="syncSourcePercent()">
-            <option value="5.6" selected>페라스타 (5.6%)</option>
-            <option value="10">페라스타10 (10%)</option>
-            <option value="6">페라스타아이안심 (6%)</option>
-            <option value="5.6">페라스타AG (5.6%)</option>
-            <option value="5.6">페라스타그린 (5.6%)</option>
-        </select>
-        <small style="color:#666;">* 약품 선택 시 원액 농도가 자동 반영됩니다.</small>
-    </div>
-
-    <div class="input-group">
-        <label for="sourcePercent">4. 페라스타 원액 농도 (%)</label>
-        <input type="number" id="sourcePercent" value="5.6" step="0.1">
-        <small style="color:#666;">*수동 변경 가능</small>
-    </div>
-
-    <button class="calc-btn" onclick="calculateDilution()">계산하기</button>
-
-    <div id="resultArea" class="result-box">
-        <h4>📋 투입 레시피</h4>
-        <div class="result-item">
-            준비된 물 <strong><span id="displayWater">0</span> L</strong>에<br>
-            🧪 <strong>페라스타: <span id="resAgent">0</span> mL</strong>를 투입하세요.
+        <div class="calc-field">
+            <label>약품 선택</label>
+            <select id="calcProduct" onchange="calcSyncPercent()">
+                <option value="5.6">페라스타 (5.6%)</option>
+                <option value="10">페라스타10 (10%)</option>
+                <option value="5.6">페라스타AG (5.6%)</option>
+                <option value="5.6">페라스타그린 (5.6%)</option>
+                <option value="6">페라스타아이안심 (6%)</option>
+            </select>
         </div>
-        <hr style="border: 0; border-top: 1px solid #ccc;">
-        <div class="result-item" style="color: #555;">
-            📊 <strong>제조 후 총 용량: 약 <span id="resTotal">0</span> L</strong>
+
+        <div class="calc-field">
+            <label>원액 농도 (%)</label>
+            <input type="number" id="calcPercent" value="5.6" step="0.1" readonly
+                   style="background:#f5f7f6; color:#636e72; cursor:default;">
         </div>
-        <p style="font-size: 13px; color: #777;">
-            * 안전을 위해 보호구(장갑, 마스크)를 착용하십시오.
-        </p>
+
+        <div class="calc-field">
+            <label>물의 양 (L)</label>
+            <input type="number" id="calcWater" placeholder="예: 1000" step="1" min="0">
+        </div>
+
+        <div class="calc-field">
+            <label>목표 농도 (ppm)</label>
+            <input type="number" id="calcPPM" placeholder="예: 2000" step="1" min="0">
+        </div>
+
+        <button class="calc-btn" onclick="calcRun()">계산하기</button>
+    </div>
+
+    <!-- 출력 패널 -->
+    <div class="calc-output-panel">
+        <div id="calcResult">
+            <div class="calc-placeholder">값을 입력하고 계산하기를 눌러주세요.</div>
+        </div>
     </div>
 </div>
 
 <script>
-    function syncSourcePercent() {
-        var productSelect = document.getElementById('testProduct');
-        var selectedConcentration = parseFloat(productSelect.value);
-        var selectedProductName = productSelect.options[productSelect.selectedIndex].text.split(' (')[0];
-
-        document.getElementById('sourcePercent').value = selectedConcentration;
-        document.getElementById('selectedProductName').innerText = selectedProductName;
+    function calcSyncPercent() {
+        var sel = document.getElementById('calcProduct');
+        document.getElementById('calcPercent').value = parseFloat(sel.value);
     }
 
-    function calculateDilution() {
-        // 1. 입력값 가져오기
-        var waterVolLiter = parseFloat(document.getElementById('waterVol').value);
-        var targetPPM = parseFloat(document.getElementById('targetPPM').value);
-        var sourcePercent = parseFloat(document.getElementById('sourcePercent').value);
+    function calcRun() {
+        var waterL   = parseFloat(document.getElementById('calcWater').value);
+        var ppm      = parseFloat(document.getElementById('calcPPM').value);
+        var pct      = parseFloat(document.getElementById('calcPercent').value);
+        var prodName = document.getElementById('calcProduct').options[document.getElementById('calcProduct').selectedIndex].text.split(' (')[0];
+        var resultEl = document.getElementById('calcResult');
 
-        // 2. 입력값 검증
-        if (isNaN(waterVolLiter) || isNaN(targetPPM) || isNaN(sourcePercent)) {
-            alert("모든 수치를 올바르게 입력해주세요.");
+        if (isNaN(waterL) || isNaN(ppm) || isNaN(pct) || waterL <= 0 || ppm <= 0 || pct <= 0) {
+            resultEl.innerHTML = '<div class="calc-placeholder" style="color:#e17055;">모든 값을 올바르게 입력해주세요.</div>';
             return;
         }
 
-        // 3. 계산 로직 (물 기준 역산)
-        var waterVolML = waterVolLiter * 1000;
-        var sourcePPM = sourcePercent * 10000;
-
-        if (targetPPM >= sourcePPM) {
-            alert("목표 농도가 원액 농도보다 높을 수 없습니다.");
+        var sourcePPM = pct * 10000;
+        if (ppm >= sourcePPM) {
+            resultEl.innerHTML = '<div class="calc-placeholder" style="color:#e17055;">목표 농도가 원액 농도보다 높을 수 없습니다.</div>';
             return;
         }
 
-        /* 공식 유도:
-           Total Vol = Water Vol + Agent Vol
-           Target PPM * (Water + Agent) = Source PPM * Agent
-           Target * Water + Target * Agent = Source * Agent
-           Target * Water = Agent * (Source - Target)
-           Agent = (Target * Water) / (Source - Target)
-        */
+        var waterML   = waterL * 1000;
+        var agentML   = (ppm * waterML) / (sourcePPM - ppm);
+        var totalL    = (waterML + agentML) / 1000;
+        var dilutionX = Math.round(waterML / agentML);
 
-        var requiredAgentML = (targetPPM * waterVolML) / (sourcePPM - targetPPM);
-        var totalVolML = waterVolML + requiredAgentML;
-        var totalVolLiter = totalVolML / 1000;
-
-        // 4. 결과 출력
-        document.getElementById('displayWater').innerText = waterVolLiter.toLocaleString();
-        document.getElementById('resAgent').innerText = requiredAgentML.toLocaleString(undefined, { maximumFractionDigits: 1 });
-        document.getElementById('resTotal').innerText = totalVolLiter.toLocaleString(undefined, { maximumFractionDigits: 2 });
-        document.getElementById('resultArea').style.display = 'block';
+        resultEl.innerHTML =
+            '<div class="calc-result-label">' + prodName + ' 투입량</div>' +
+            '<div class="calc-result-value">' + agentML.toLocaleString(undefined, {maximumFractionDigits: 1}) + '<span class="calc-result-unit">mL</span></div>' +
+            '<div class="calc-result-sub">' +
+                '<strong>물 ' + waterL.toLocaleString() + ' L</strong>에 <strong>' + prodName + ' ' +
+                agentML.toLocaleString(undefined, {maximumFractionDigits: 1}) + ' mL</strong>를 투입<br>' +
+                '제조 후 총 용량: 약 <strong>' + totalL.toLocaleString(undefined, {maximumFractionDigits: 2}) + ' L</strong><br>' +
+                '희석 배수: 약 <strong>' + dilutionX.toLocaleString() + '배</strong>' +
+            '</div>' +
+            '<div class="calc-warning">※ 취급 시 보호장갑·마스크를 착용하십시오.</div>';
     }
 
-    syncSourcePercent();
+    calcSyncPercent();
 </script>
 
 </body>
